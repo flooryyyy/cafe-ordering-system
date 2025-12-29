@@ -6,7 +6,6 @@ class Order(OrderSubject):
         self.menu_items = []
         self.customer = customer
 
-
     def add_item(self, item):
         self.menu_items.append(item)
         # let observers know something changed

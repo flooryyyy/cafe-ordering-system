@@ -1,6 +1,7 @@
-# define a class for storing order observers
+# define a class for order observer
 class OrderObserver:
-    # this is a base class - subclasses override update() to do something when order changes
+    # this is a base class
+    # subclasses override update() to do something when order changes
     def update(self, order):
         pass
 

@@ -1,4 +1,9 @@
+
 # bill class - generates a receipt from an order
+from rich.table import Table
+from rich.panel import Panel
+from rich import box 
+
 class Bill:
     def __init__(self, order):
         self.order = order
@@ -8,29 +13,37 @@ class Bill:
         if not self.order.menu_items:
             raise ValueError("Cannot generate bill for empty order")
         
-        receipt = []
-        receipt.append("=" * 30)
-        receipt.append("        LOCAL CAFE RECEIPT")
+        # Create a table for the receipt content
+        table = Table(box=None, show_header=False, expand=True, padding=(0, 1))
+        table.add_column("Item", justify="left", ratio=3)
+        table.add_column("Price", justify="right", ratio=1)
         
         # add customer if available
         if self.order.customer:
-            receipt.append(f"Customer: {self.order.customer.name}")
+            table.add_row(f"[bold]Customer: {self.order.customer.name}[/]", "")
+            table.add_section()
             
-        receipt.append("=" * 30)
-        
         # list items
         for item in self.order.menu_items:
-            # push price to the right (column 20)
-            receipt.append(f"{item.name:<20} £{item.price:.2f}")
-        receipt.append("-" * 30)
-        receipt.append(f"{'Subtotal:':<20} £{self.order.get_total():.2f}")
-        receipt.append(f"{'VAT (20%):':<20} £{self.order.get_vat():.2f}")
-        receipt.append("-" * 30)
-        receipt.append(f"{'TOTAL:':<20} £{self.order.get_total_cost():.2f}")
-        receipt.append("=" * 30)
-        receipt.append("      Thank you for purchasing from our local cafe!")
+            table.add_row(item.name, f"£{item.price:.2f}")
+            
+        table.add_section()
+        table.add_row("Subtotal:", f"£{self.order.get_total():.2f}")
+        table.add_row("VAT (20%):", f"£{self.order.get_vat():.2f}")
         
-        return "\n".join(receipt)
+        # Final total with bold styling
+        table.add_section()
+        table.add_row("[bold]TOTAL:[/]", f"[bold]£{self.order.get_total_cost():.2f}[/]")
+        
+        # Return the table wrapped in a Panel
+        return Panel(
+            table, 
+            title="🧾 LOCAL CAFE RECEIPT", 
+            subtitle="Thank you for visiting!",
+            border_style="blue",
+            width=50
+        )
     
     def print_bill(self):
         print(self.generate())
+

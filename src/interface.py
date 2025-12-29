@@ -1,19 +1,45 @@
+# load menu data from the json file
 from menu import load_menu
+# order class to manage what people want to buy
 from order import Order
+# bill class to print receipts later
 from bill import Bill
+# factory to easily create food or drink items
 from factory import MenuItemFactory
+# customer to handle user details
 from customer import Customer
 
-# helper to enforce valid choices
+# New imports for Rich UI
+from rich.console import Console
+from rich.table import Table
+from rich.panel import Panel
+from rich.prompt import Prompt, Confirm
+
+# Initialize global console
+console = Console()
+
+# helper function to validate user inputs
 def get_valid_input(prompt, options):
+    # runs until we get a valid answer
     while True:
-        choice = input(prompt)
-        if choice in options:
-            return choice
-        print("Invalid choice, please try again.")
+        # ask the user for input using rich prompt
+        choice = Prompt.ask(prompt, choices=options)
+        return choice
+
+def create_menu_table():
+    table = Table(title="MAIN MENU", show_header=True, header_style="bold magenta")
+    table.add_column("No.", style="cyan", width=4)
+    table.add_column("Option", style="white")
+    
+    table.add_row("1", "Login or Register")
+    table.add_row("2", "View/Add/Remove Items")
+    table.add_row("3", "Add Items to Order")
+    table.add_row("4", "Checkout & Pay")
+    table.add_row("5", "Exit")
+    return table
 
 def run_cafe():
-    print("--- WELCOME TO THE CAFE ---")
+    console.print(Panel.fit("☕ WELCOME TO THE CAFE ☕", style="bold yellow"))
     
     # load menu at startup
     menu = load_menu()
@@ -22,75 +48,94 @@ def run_cafe():
     
     # main app loop
     while True:
-        print("\n--- MAIN MENU ---")
-        if current_customer:
-            print(f"Customer: {current_customer.get_details()}")
-        print("1. Customer Management (Register/Login)")
-        print("2. Menu Management (View/Add/Remove Items)")
-        print("3. Order Management (New Order/Add Items)")
-        print("4. Checkout & Pay")
-        print("5. Exit")
+        console.print() # spacer
+        # if current_customer:
+        #     console.print(f"[bold green]Customer: {current_customer.get_details()}[/]")
         
-        choice = input("Enter number: ")
+        # Display main menu table
+        table = Table(title="Currently Logged In: " + (f"[green]{current_customer.name}[/]" if current_customer else "[red]Guest[/]"))
+        table.add_column("Option", justify="right", style="cyan", no_wrap=True)
+        table.add_column("Description", style="white")
+
+        table.add_row("1", "Login or Register")
+        table.add_row("2", "Manage Menu (Admin)")
+        table.add_row("3", "Place Order")
+        table.add_row("4", "Checkout")
+        table.add_row("5", "Exit")
+        
+        console.print(table)
+        
+        choice = Prompt.ask("Enter number", choices=["1", "2", "3", "4", "5"])
         
         # Customer Management
         if choice == "1":
-            print("\n--- CUSTOMER MANAGEMENT ---")
-            name = input("Enter customer name: ")
-            email = input("Enter email (optional, press enter to skip): ")
+            console.print(Panel("[bold]CUSTOMER MANAGEMENT[/]", style="blue"))
+            name = console.input("Enter customer name: ")
+            email = console.input("Enter email (optional): ")
             try:
                 current_customer = Customer(name, email if email else None)
-                print(f"Welcome, {current_customer.name}!")
+                console.print(f"[bold green]Welcome, {current_customer.name}![/]")
                 # link pending order if it exists
                 if current_order:
                     current_order.customer = current_customer
             except ValueError as e:
-                print(f"Error: {e}")
+                console.print(f"[red]Error: {e}[/]")
 
         # Menu Management
         elif choice == "2":
             while True:
-                print("\n--- MENU MANAGEMENT ---")
-                print("1. View Menu")
-                print("2. Add New Item")
-                print("3. Remove Item")
-                print("4. Back to Main Menu")
+                console.print("\n[bold]MENU MANAGEMENT[/]")
+                console.print("1. View Menu")
+                console.print("2. Add New Item")
+                console.print("3. Remove Item")
+                console.print("4. Back")
                 
-                menu_choice = input("Enter number: ")
+                menu_choice = Prompt.ask("Choose", choices=["1", "2", "3", "4"])
                 
                 if menu_choice == "1":
-                    menu.get_items()
+                    # We can also upgrade this to a table, but for now just print nicely
+                    console.print("[bold underline]Current Menu:[/]")
+                    menu_table = Table(show_header=True, header_style="bold magenta")
+                    menu_table.add_column("Type", style="cyan")
+                    menu_table.add_column("Name", style="white")
+                    menu_table.add_column("Price", justify="right", style="green")
+                    
+                    for item in menu.items:
+                        import inspect
+                        # hacky type check or just string check
+                        itype = "Drink" if hasattr(item, 'size') else "Food"
+                        menu_table.add_row(itype, item.name, f"£{item.price:.2f}")
+                    console.print(menu_table)
                 
                 elif menu_choice == "2":
-                    print("\nAdding new item...")
-                    item_type = get_valid_input("Type (food/drink): ", ["food", "drink"])
-                    name = input("Name: ")
+                    console.print("[yellow]Adding new item...[/]")
+                    item_type = get_valid_input("Type", ["food", "drink"])
+                    name = console.input("Name: ")
                     try:
-                        price = float(input("Price: "))
+                        price = float(console.input("Price: "))
                         
                         if item_type == "food":
-                            is_veg = input("Is vegetarian? (y/n): ").lower() == 'y'
+                            is_veg = Confirm.ask("Is vegetarian?")
                             item = MenuItemFactory.create_item("food", name, price, vegetarian=is_veg)
                         else:
-                            size = input("Size (small/medium/large): ")
+                            size = Prompt.ask("Size", choices=["small", "medium", "large"])
                             item = MenuItemFactory.create_item("drink", name, price, size=size)
                             
                         menu.add_item(item)
-                        print(f"{name} added to menu!")
+                        console.print(f"[bold green]{name} added to menu![/]")
                     except ValueError as e:
-                        print(f"Error: {e}")
+                        console.print(f"[bold red]Error: {e}[/]")
                 
                 elif menu_choice == "3":
-                    name = input("Enter name of item to remove: ")
-                    # look up item by name
+                    name = console.input("Enter name of item to remove: ")
                     items_to_remove = [item for item in menu.items if item.name.lower() == name.lower()]
                     
                     if items_to_remove:
                         for item in items_to_remove:
                             menu.remove_item(item)
-                        print(f"Removed {len(items_to_remove)} items named '{name}'")
+                        console.print(f"[green]Removed {len(items_to_remove)} items named '{name}'[/]")
                     else:
-                        print("Item not found.")
+                        console.print("[red]Item not found.[/]")
                         
                 elif menu_choice == "4":
                     break
@@ -99,60 +144,66 @@ def run_cafe():
         elif choice == "3":
             if not current_order:
                 current_order = Order(current_customer)
-                print("Created new order.")
+                console.print("[dim]Created new order.[/]")
             
             while True:
-                print("\n--- ORDER MANAGEMENT ---")
-                print("1. View Menu")
-                print("2. Add Item to Order")
-                print("3. View Current Order")
-                print("4. Back to Main Menu")
+                console.print("\n[bold]ORDER MANAGEMENT[/]")
+                console.print("1. View Menu")
+                console.print("2. Add Item")
+                console.print("3. View Cart")
+                console.print("4. Back")
                 
-                order_choice = input("Enter number: ")
+                order_choice = Prompt.ask("Choose", choices=["1", "2", "3", "4"])
                 
                 if order_choice == "1":
-                    menu.get_items()
+                    # Duplicate logic for now, or we could make a helper
+                     # Simple list for speed
+                     for item in menu.items:
+                         console.print(f"- {item.name} (£{item.price})")
                 elif order_choice == "2":
-                    # find item and add it
-                    name = input("Enter item name: ")
+                    name = console.input("Item name: ")
                     found = False
                     for item in menu.items:
                         if item.name.lower() == name.lower():
                             current_order.add_item(item)
-                            print(f"Added {item.name}")
+                            console.print(f"[bold green]Added {item.name}[/]")
                             found = True
                             break
                     if not found:
-                        print("Item not found in menu.")
+                        console.print("[red]Item not found.[/]")
                 elif order_choice == "3":
-                    if len(current_order.menu_items) == 0:
-                        print("Order is empty.")
+                    if not current_order.menu_items:
+                        console.print("[yellow]Order is empty.[/]")
                     else:
-                        current_order.get_items()
-                        print(f"Total: £{current_order.get_total_cost():.2f}")
+                        cart_table = Table(title="Your Cart")
+                        cart_table.add_column("Item")
+                        cart_table.add_column("Price", justify="right")
+                        for item in current_order.menu_items:
+                             cart_table.add_row(item.name, f"£{item.price:.2f}")
+                        cart_table.add_row("---", "---")
+                        cart_table.add_row("[bold]Total[/]", f"[bold]£{current_order.get_total_cost():.2f}[/]")
+                        console.print(cart_table)
                 elif order_choice == "4":
                     break
 
         # Checkout
         elif choice == "4":
-            if not current_order or len(current_order.menu_items) == 0:
-                print("No active order to checkout.")
+            if not current_order or not current_order.menu_items:
+                console.print("[red]No active order to checkout.[/]")
             else:
                 try:
-                    # generate receipt
                     bill = Bill(current_order)
-                    print("\n" + bill.generate())
+                    # bill.generate() now returns a rich Panel
+                    console.print(bill.generate())
                     current_order = None
-                    print("\nOrder completed and paid.")
+                    console.print("[bold green]Order completed and paid![/]")
+                    console.input("[dim]Press Enter to continue...[/]")
                 except ValueError as e:
-                    print(f"Error: {e}")
+                    console.print(f"[red]Error: {e}[/]")
 
         elif choice == "5":
-            print("Goodbye!")
+            console.print("[bold yellow]Goodbye![/]")
             break
             
-        else:
-            print("Invalid choice.")
-
 if __name__ == "__main__":
     run_cafe()
