@@ -4,6 +4,7 @@ from bill import Bill
 from factory import MenuItemFactory
 from customer import Customer
 
+# helper to enforce valid choices
 def get_valid_input(prompt, options):
     while True:
         choice = input(prompt)
@@ -14,10 +15,12 @@ def get_valid_input(prompt, options):
 def run_cafe():
     print("--- WELCOME TO THE CAFE ---")
     
+    # load menu at startup
     menu = load_menu()
     current_customer = None
     current_order = None
     
+    # main app loop
     while True:
         print("\n--- MAIN MENU ---")
         if current_customer:
@@ -38,6 +41,7 @@ def run_cafe():
             try:
                 current_customer = Customer(name, email if email else None)
                 print(f"Welcome, {current_customer.name}!")
+                # link pending order if it exists
                 if current_order:
                     current_order.customer = current_customer
             except ValueError as e:
@@ -78,6 +82,7 @@ def run_cafe():
                 
                 elif menu_choice == "3":
                     name = input("Enter name of item to remove: ")
+                    # look up item by name
                     items_to_remove = [item for item in menu.items if item.name.lower() == name.lower()]
                     
                     if items_to_remove:
@@ -108,6 +113,7 @@ def run_cafe():
                 if order_choice == "1":
                     menu.get_items()
                 elif order_choice == "2":
+                    # find item and add it
                     name = input("Enter item name: ")
                     found = False
                     for item in menu.items:
@@ -133,6 +139,7 @@ def run_cafe():
                 print("No active order to checkout.")
             else:
                 try:
+                    # generate receipt
                     bill = Bill(current_order)
                     print("\n" + bill.generate())
                     current_order = None

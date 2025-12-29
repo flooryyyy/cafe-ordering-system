@@ -9,6 +9,7 @@ class Order(OrderSubject):
 
     def add_item(self, item):
         self.menu_items.append(item)
+        # let observers know something changed
         self.notify_observers()
 
     def remove_item(self, item):
@@ -20,9 +21,11 @@ class Order(OrderSubject):
             print(item.get_details())
 
     def get_total(self):
+        # sum up all item prices
         return sum(item.price for item in self.menu_items)
 
     def get_vat(self):
+        # standard 20% vat
         return self.get_total() * 0.2
 
     def get_total_cost(self):

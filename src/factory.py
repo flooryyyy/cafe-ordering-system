@@ -1,7 +1,7 @@
 from menu import FoodItem, DrinkItem
 
 class MenuItemFactory:
-    # Create items based on type
+    # centralized item creation
     @staticmethod
     def create_item(item_type, name, price, **kwargs):
         if item_type == "food":
