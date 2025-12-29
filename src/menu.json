@@ -1,0 +1,16 @@
+[
+    {
+        "type": "food",
+        "name": "Burger",
+        "description": "Limited edition cheeseburger with lettuce, pepperoni, and pineapple",
+        "vegetarian": false,
+        "price": 5.99
+    },
+    {
+        "type": "drink",
+        "name": "Diet Coke",
+        "description": "A cold diet coke",
+        "size": "large",
+        "price": 1.99
+    }
+]
