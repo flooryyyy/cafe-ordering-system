@@ -4,7 +4,7 @@
         "name": "Burger",
         "description": "Limited edition cheeseburger with lettuce, pepperoni, and pineapple",
         "vegetarian": false,
-        "price": 5.99
+        "price": 3.99
     },
     {
         "type": "drink",
@@ -12,5 +12,26 @@
         "description": "A cold diet coke",
         "size": "large",
         "price": 1.99
+    },
+    {
+        "type": "food",
+        "name": "Fries",
+        "description": "Crispy fries with sea salt",
+        "vegetarian": true,
+        "price": 2.00
+    },
+    {
+        "type": "drink",
+        "name": "Latte",
+        "description": "Smooth latte with steamed milk",
+        "size": "medium",
+        "price": 2.50
+    },
+    {
+        "type": "food",
+        "name": "Caesar Salad",
+        "description": "Lettuce, tomatoes, bread squares, grated Parmesan, and Caesar dressing",
+        "vegetarian": true,
+        "price": 3.00
     }
 ]
