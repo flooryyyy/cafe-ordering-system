@@ -28,9 +28,16 @@ python3 src/interface.py
 ### Running Tests
 I also wrote some unit tests to make sure I didn't break anything. You can run them with:
 ```bash
-python3 tests/test_main.py
+python3 src/tests.py
 ```
-They should all pass (hopefully!).
+They should all pass (hopefully!). Here's what I'm testing:
+*   **Menu Items**: Making sure food and drinks store their price and attributes correctly.
+*   **Order Calculations**: Checking that the total cost and VAT (20%) are calculated right.
+*   **Menu Logic**: Adding and removing items from the menu list.
+*   **Bill Generation**: Ensuring the receipt doesn't crash and includes the right stuff.
+*   **Factory Pattern**: Verifying that asking for "food" actually creates a FoodItem.
+*   **Observer Pattern**: Checking that the order notifies the system when items are added.
+*   **Error Handling**: Making sure it stops you from creating invalid items or empty orders.
 
 ## Project Structure
 All the source code is in `src/`:
