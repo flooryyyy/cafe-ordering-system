@@ -9,13 +9,13 @@ from factory import MenuItemFactory
 # customer to handle user details
 from customer import Customer
 
-# New imports for Rich UI
+# better UI 
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
 from rich.prompt import Prompt, Confirm
 
-# Initialize global console
+# initialize global console
 console = Console()
 
 # helper function to validate user inputs
@@ -26,10 +26,11 @@ def get_valid_input(prompt, options):
         choice = Prompt.ask(prompt, choices=options)
         return choice
 
+# create a table for the main menu using "rich" library
 def create_menu_table():
-    table = Table(title="MAIN MENU", show_header=True, header_style="bold magenta")
-    table.add_column("No.", style="cyan", width=4)
-    table.add_column("Option", style="white")
+    table = Table(title="Main Menu", show_header=True, header_style="bold purple")
+    table.add_column("No.", style="cyan", width=2)
+    table.add_column("Option", style="yellow")
     
     table.add_row("1", "Login or Register")
     table.add_row("2", "View/Add/Remove Items")

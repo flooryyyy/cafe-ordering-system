@@ -1,0 +1,11 @@
+# ignore venv
+.venv
+
+# ignore rich console output
+*.console
+
+# ignore python cache
+__pycache__
+
+# agent related files
+.agent
