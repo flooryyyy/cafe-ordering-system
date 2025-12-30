@@ -1,50 +1,32 @@
-# Testing Report
+# Testing Report Settings
 
-## Test Summary
+For Task 4, I've written a suite of unit tests to ensure the system is robust and doesn't crash easily. The tests cover the main logic like calculating totals, managing the menu, and generating bills.
 
-| Test | Status |
-|------|--------|
-| test_food_item | ✓ PASS |
-| test_order_calculations | ✓ PASS |
-| test_menu_management | ✓ PASS |
-| test_bill_generation | ✓ PASS |
-| test_factory_pattern | ✓ PASS |
-| test_observer_pattern | ✓ PASS |
-| test_empty_order_error | ✓ PASS |
-| test_invalid_item_name | ✓ PASS |
-| test_negative_price | ✓ PASS |
+## What's Tested?
 
-**Total: 9 tests, 9 passed, 0 failed**
+I focused on the critical parts of the application:
 
-## Test Coverage
+1.  **Core Logic**:
+    *   **Calculations**: Verified that `get_total()` and `get_vat()` sums up correctly.
+    *   **Menu**: Checked that we can add and remove items from the menu list.
+    *   **Bill**: Ensured the bill generation runs without errors and pulls the right customer data.
 
-### Core Functionality
-- **MenuItem**: Tests that FoodItem stores name, price, and vegetarian status correctly
-- **Order**: Tests add_item, get_total, get_vat, and get_total_cost calculations
-- **Menu**: Tests add_item and remove_item operations
-- **Bill**: Tests that receipt contains correct items and totals
+2.  **Design Patterns**:
+    *   **Factory**: Tested that asking for "food" actually gives us a `FoodItem` and "drink" gives a `DrinkItem`.
+    *   **Observer**: Created a dummy observer to count how many times it gets notified when items are added to an order.
 
-### Design Patterns
-- **Factory**: Tests that create_item returns correct types (FoodItem/DrinkItem)
-- **Observer**: Tests that observers receive notifications when items are added
+3.  **Error Handling**:
+    *   **Empty Orders**: You can't checkout with an empty cart. The system raises a `ValueError` (which the UI catches).
+    *   **Invalid Inputs**: Creating an item with a negative price or empty name raises a `ValueError`.
 
-### Error Handling
-- **Empty Order**: Verifies ValueError is raised when generating bill for empty order
-- **Invalid Name**: Verifies ValueError for empty item name
-- **Negative Price**: Verifies ValueError for negative prices
+## Test Results
 
-## How to Run Tests
+I ran the tests using Python's `unittest` framework. All 11 tests passed.
 
-```bash
-cd /path/to/project
-python3 src/tests.py
 ```
-
-Expected output:
-```
-.........
-----------------------------------------------------------------------
-Ran 9 tests in 0.000s
+Ran 11 tests in 0.001s
 
 OK
 ```
+
+This gives me confidence that everything is working as it should.

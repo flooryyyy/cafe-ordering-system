@@ -1,52 +1,43 @@
-# Design Pattern Explanation
+# Design Patterns
 
-## Factory Pattern (factory.py)
+We used two main design patterns in this project to make the code cleaner and easier to expand later. Here's a quick explanation of what they are and why we used them.
 
-### What It Does
-The Factory Pattern creates MenuItem objects without exposing the creation logic. Instead of calling `FoodItem()` or `DrinkItem()` directly, you use `MenuItemFactory.create_item()`.
+## Factory Pattern
+### What is it?
+The Factory Pattern is basically a way to create objects without having to specify the exact class of the object that will be created. Instead of calling the constructor directly (like `FoodItem(...)`), we ask a factory to make it for us.
 
-### Why We Chose It
-1. **Scalability**: If we add new item types later (e.g., SpecialItem, ComboItem), we only need to update the factory, not all the code that creates items
-2. **Consistency**: All items are created the same way, reducing bugs
-3. **Flexibility**: The factory can add validation or default values in one place
+### Why did we use it?
+It keeps all the creation logic in one place. If we want to add a new type of item later (like a "ComboMeal"), we just add it to the factory. We don't have to go through the whole code finding every place where we made a new item.
 
-### Code Example
+### Code Snippet
+In `src/factory.py`, we check the type and create the right object:
 ```python
-# Without factory - scattered code
-food = FoodItem("Pizza", 8.00, True)
-drink = DrinkItem("Tea", 1.50, "small")
-
-# With factory - centralised creation
-food = MenuItemFactory.create_item("food", "Pizza", 8.00, vegetarian=True)
-drink = MenuItemFactory.create_item("drink", "Tea", 1.50, size="small")
+class MenuItemFactory:
+    @staticmethod
+    def create_item(item_type, name, price, **kwargs):
+        if item_type == "food":
+            return FoodItem(name, price, kwargs.get("vegetarian", False))
+        elif item_type == "drink":
+            return DrinkItem(name, price, kwargs.get("size", "medium"))
+```
+So in our main code, we just do:
+```python
+item = MenuItemFactory.create_item("food", "Burger", 5.00, vegetarian=False)
 ```
 
----
+## Observer Pattern
+### What is it?
+The Observer Pattern defines a subscription mechanism. When one object (the subject) changes state, all its dependents (observers) are notified automatically.
 
-## Observer Pattern (observer.py, order.py)
+### Why did we use it?
+It's really useful for keeping the UI in sync with the data. When an item is added to an order, the Order object notifies anyone listening. This means if we added a display screen in the kitchen, it would automatically know when a new item was added without us having to change the `Order` class code.
 
-### What It Does
-The Observer Pattern lets objects "subscribe" to changes in another object. When an Order changes (item added/removed), all subscribers are automatically notified.
-
-### Why We Chose It
-1. **Real-time Updates**: A display screen could update automatically when orders change
-2. **Loose Coupling**: The Order class doesn't need to know what's listening - it just notifies
-3. **Future Features**: Easy to add notifications to kitchen, mobile app, or stock system
-
-### Code Example
+### Code Snippet
+In `src/order.py`, the Order class inherits from `OrderSubject`:
 ```python
-class KitchenDisplay(OrderObserver):
-    def update(self, order):
-        print(f"Kitchen: Order updated, {len(order.menu_items)} items")
-
-order = Order()
-display = KitchenDisplay()
-order.add_observer(display)
-
-order.add_item(burger)  # Kitchen display automatically notified
+class Order(OrderSubject):
+    def add_item(self, item):
+        self.menu_items.append(item)
+        self.notify_observers()  # Tell everyone something changed!
 ```
-
-### How It Improves the System
-- **Modularity**: New observers can be added without changing Order class
-- **Maintainability**: Each observer handles its own logic
-- **Scalability**: Supports multiple concurrent observers (display, printer, mobile app)
+Any class can "listen" by implementing an `update()` method and attaching itself to the order.

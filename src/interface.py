@@ -28,7 +28,7 @@ def get_valid_input(prompt, options):
 
 # create a table for the main menu using "rich" library
 def create_menu_table():
-    table = Table(title="Main Menu", show_header=True, header_style="bold purple")
+    table = Table(title="Main Menu", show_header=True)
     table.add_column("No.", style="cyan", width=2)
     table.add_column("Option", style="yellow")
     
@@ -40,7 +40,7 @@ def create_menu_table():
     return table
 
 def run_cafe():
-    console.print(Panel.fit("☕ WELCOME TO THE CAFE ☕", style="bold yellow"))
+    console.print(Panel.fit("Welcome to the local cafe!"))
     
     # load menu at startup
     menu = load_menu()
